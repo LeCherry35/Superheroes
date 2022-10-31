@@ -33,6 +33,7 @@ const Heroes = () => {
         {heroes.map(hero => {
           return (
             <HeroShortcut 
+              key={hero._id}
               id={hero._id}
               nickname={hero.nickname} 
               name={hero.real_name} 

@@ -1,12 +1,12 @@
 import React from "react";
-import { NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import s from "./Header.module.sass"
 
 const Header = () => {
   return (
     <div className={s.container}>
-        <NavLink to="/addHero" className={s.button}>Add hero!</NavLink>
-        <NavLink to="/heroes" className={s.button}>View heroes!</NavLink>
+        <Link to="/addHero" className={s.button}>Add hero!</Link>
+        <Link to="/heroes" className={s.button}>View heroes!</Link>
     </div>
   )
 }
