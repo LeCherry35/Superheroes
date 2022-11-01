@@ -6,6 +6,7 @@ const HeroSchema = new Schema({
     origin_description: {type: String},
     superpowers: {type: String, required: true},
     catch_phrase: {type: String},
+    image: {data: Buffer, contentType: String},
     // images: {data: Buffer, contentType: String}
 })
 

@@ -6,7 +6,30 @@ class HeroController {
     async addHero (req, res, next) {
         try {
             const {nickname, real_name, origin_description, superpowers, catch_phrase} = req.body
-            const hero = await HeroService.addHero(nickname, real_name, origin_description, superpowers, catch_phrase)
+            // console.log('aaaddd', req)
+            const newHero = { 
+                nickname, 
+                superpowers,
+                real_name, 
+                origin_description,
+                catch_phrase,
+                image: req.file 
+                ? {
+                    data: new Buffer.from(req.file.buffer, 'base64'), 
+                    contentType: req.file.mimetype 
+                }
+                : {}
+            }
+            const hero = await HeroService.addHero(newHero)
+            console.log('re', hero);
+            const newImage = { 
+                superhero: heroId,
+                image: {
+                    data: new Buffer.from(req.file.buffer, 'base64'), 
+                    contentType: req.file.mimetype 
+                }
+            }
+            const savedImage = await ImageModel.create(newImage)
             console.log(`${nickname} added to database`);
             return res.json(hero)
         } catch (e) {
@@ -16,8 +39,19 @@ class HeroController {
     async editHero (req, res, next) {
         try {
             const {nickname, real_name, origin_description, superpowers, catch_phrase} = req.body
+            const editedHero = { 
+                nickname, 
+                superpowers,
+                real_name, 
+                origin_description,
+                catch_phrase,
+                image: req.file && {
+                    data: new Buffer.from(req.file.buffer, 'base64'), 
+                    contentType: req.file.mimetype 
+                }
+            }
             const { id } = req.query
-            const hero = await HeroService.editHero(id, nickname, real_name, origin_description, superpowers, catch_phrase)
+            const hero = await HeroService.editHero(id, editedHero)
             return res.json(hero)
         } catch (e) {
             next(e)
@@ -55,7 +89,6 @@ class HeroController {
             const { heroId } = req.query
             const newImage = { 
                     superhero: heroId,
-                    main: false, 
                     image: {
                         data: new Buffer.from(req.file.buffer, 'base64'), 
                         contentType: req.file.mimetype 
@@ -67,12 +100,12 @@ class HeroController {
             next(e)
         }
     }
-    async getImage (req,res,next) {
+    async getImages (req,res,next) {
         try {
             const { heroId } = req.query
-            const image = await ImagesService.getImages(heroId)
+            const images = await ImagesService.getImages(heroId)
             // console.log('f', res.json(image));
-            return res.json(image)
+            return res.json(images)
         } catch(e) {
             next(e)
         }

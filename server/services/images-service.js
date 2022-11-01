@@ -6,8 +6,8 @@ class ImageService {
         return savedImage
     }
     async getImages(heroId) {
-        const image = await ImageModel.find({superhero: heroId}).exec();
-        return image
+        const images = await ImageModel.find({superhero: heroId}).exec();
+        return images
     }
 }
 module.exports = new ImageService ()

@@ -9,12 +9,12 @@ const upload = multer({ storage: multerStorage, });
 
 const router = new Router()
 
-router.post('/addHero', heroController.addHero)
-router.put('/editHero', heroController.editHero)
+router.post('/addHero', upload.single('image'), heroController.addHero)
+router.put('/editHero', upload.single('image'), heroController.editHero)
 router.delete('/deleteHero', heroController.deleteHero)
 router.get('/getHeroes', heroController.getHeroes)
 router.get('/getHero/:heroId', heroController.getHero)
 
-router.post('/uploadImages',upload.single('image') ,heroController.uploadImage)
-router.get('/getImages',heroController.getImage)
+router.post('/uploadImage',upload.single('image') ,heroController.uploadImage)
+router.get('/getImages',heroController.getImages)
 module.exports = router

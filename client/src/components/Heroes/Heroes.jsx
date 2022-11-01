@@ -3,9 +3,11 @@ import HeroService from '../../services/HeroService'
 import Button from '../Button/Button'
 import HeroShortcut from '../HeroShortcut/HeroShortcut'
 import s from './Heroes.module.sass'
+import Preloader from '../Preloader/Preloader'
 
 const Heroes = () => {
-
+  const [isLoading, setIsLoading] = useState(false)
+  const [buttonDisabled, setButtonDisabled] = useState(false)
   const q = 5
   const [page, setPage] = useState(0)
 
@@ -20,15 +22,25 @@ const Heroes = () => {
   // },[heroes])
 
   const getHeroes = async (q, page) => {
-    const res = await HeroService.getHeroes(q, page)
-    const newHeroes = res.data
-    // ask Eugene if I need a callback here
-    setHeroes([...heroes, ...newHeroes])
+    try {
+      setIsLoading(true)
+      setButtonDisabled(true)
+      const res = await HeroService.getHeroes(q, page)
+      const newHeroes = res.data
+      // ask Eugene if I need a callback here
+      setHeroes([...heroes, ...newHeroes])
+      setIsLoading(false)
+      setButtonDisabled(false)
+    }catch(e){
+      setIsLoading(false)
+    }
+    
+    
   }
 
   return (
     <div className={s.container}>
-    Heroes
+    {isLoading ? <Preloader /> : <></>}
       <div className={s.heroesContainer}> 
         {heroes.map(hero => {
           return (
@@ -36,15 +48,12 @@ const Heroes = () => {
               key={hero._id}
               id={hero._id}
               nickname={hero.nickname} 
-              name={hero.real_name} 
-              superpowers={hero.superpowers} 
-              origin={hero.origin_description} 
-              phrase={hero.catch_phrase}
+              image={hero.image}
             />
           )
         })}
       </div>
-      <Button name='Show more heroes' onClick={(e) => setPage(page + 1)}/>
+      {buttonDisabled ? <></> : <Button name='Show more heroes' onClick={(e) => setPage(page + 1)}/>}
     </div>
   )
 }

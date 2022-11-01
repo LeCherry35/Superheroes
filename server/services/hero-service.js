@@ -2,29 +2,30 @@ const ApiError = require('../exceptions/api-error')
 const HeroModel = require('../models/superhero-model') 
 
 class HeroService {
-    async addHero (nickname, real_name, origin_description, superpowers, catch_phrase) {
-        if (!nickname) {
+    async addHero (hero) {
+        if (!hero.nickname) {
             throw ApiError.BadRequest(`Nickname is not defined`)
         }
-        if (!superpowers) {
-            throw ApiError.BadRequest(`${nickname} requires superpowers`)
+        if (!hero.superpowers) {
+            throw ApiError.BadRequest(`${hero.nickname} requires superpowers`)
         }
-        const existing = await HeroModel.findOne({nickname})
+        const existing = await HeroModel.findOne({nickname: hero.nickname})
         if (existing) {
-            throw ApiError.BadRequest(`Hero with nickname ${nickname} already exists`)
+            throw ApiError.BadRequest(`Hero with nickname ${hero.nickname} already exists`)
         }
         
-        const hero = await HeroModel.create({nickname: nickname, real_name: real_name, origin_description: origin_description, superpowers: superpowers, catch_phrase: catch_phrase})
-        return hero 
+        const createdHero = await HeroModel.create(hero)
+        return createdHero 
     }
-    async editHero (id, nickname, real_name, origin_description, superpowers, catch_phrase) {
-        const existing = await HeroModel.find({nickname})
+    async editHero (id, hero) {
+        const existing = await HeroModel.find({nickname: hero.nickname})
         // console.log('e', existing);
         // if (existing) {
         //     throw ApiError.BadRequest(`Hero with nickname ${nickname} already exists`)
         // }
-        const hero = await HeroModel.findByIdAndUpdate({_id: id}, {$set: {nickname: nickname, real_name: real_name, origin_description: origin_description,  superpowers: superpowers,catch_phrase: catch_phrase}})
-        return hero
+        const editedHero = await HeroModel.findByIdAndUpdate({_id: id}, {$set: {nickname: hero.nickname, real_name: hero.real_name, origin_description: hero.origin_description,  superpowers: hero.superpowers,catch_phrase: hero.catch_phrase}})
+        if (hero.image) await HeroModel.findByIdAndUpdate({_id: id},{$set: {image: hero.image}})
+        return editedHero
     }
     async deleteHero (id) {
         const hero = await HeroModel.findByIdAndDelete({_id: id})

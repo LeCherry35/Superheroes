@@ -6,72 +6,90 @@ import s from './Hero.module.sass'
 import Button from '../Button/Button'
 import Gallery from '../Gallery/Gallery'
 import HeroInfo from '../HeroInfo/HeroInfo'
+import { addHeroAsync, deleteHeroAsync, editHeroAsync } from '../../async-middleware/hero'
+import Preloader from '../Preloader/Preloader'
+import GalleryService from '../../services/GalleryService'
 
 
 
 const Hero = (props) => {
+  const [isLoading, setIsLoading] = useState(false)
   const {id} = useParams()
   const [hero, setHero] = useState({})
   const [images, setImages] = useState([])
+  const [avatar, setAvatar] = useState(null)
   const [edit, setEdit] = useState(props.edit)
   
   let navigate = useNavigate();
   
+  const imageInputRef = useRef(null)
   useEffect(() => {
     id && getHero()
     props.new && setHero({})
     props.new && setEdit(true)
-    
   }, [id, edit])
 
   const toggleEdit = () => {
     setEdit(!edit)
   }
   const getHero = async () => {
-    const res = await HeroService.getHero(id)
-    setHero(res.data)
-    const imgRes = await HeroService.getImages(id)
-    setImages([...imgRes.data])
-  }
-  const addHero = async (nickname, name, origin, superpowers, phrase) => {
-    const res = await HeroService.addHero(nickname, name, origin, superpowers, phrase)
-    uploadImage(res.data._id)
-    console.log(`${res.data.nickname} succesfully added to database`);
-    toggleEdit(false)
-    // return navigate(`/hero/${res.data._id}`)
-    return navigate('/heroes')
+    try {
+      setIsLoading(true)
+      const res = await HeroService.getHero(id)
+      setHero(res.data)
+      const imgRes = await GalleryService.getImages(id)
+      const images = [res.data, ...imgRes.data]
+      setImages(images)
+      setIsLoading(false)
+    }catch(e){
+      setIsLoading(false)
+    }
     
   }
-  const editHero = async (nickname, name, origin, superpowers, phrase, id) => {
-    const res = await HeroService.editHero(nickname, name, origin, superpowers, phrase, id)
-    console.log(`${res.data.nickname} succesfully edited`);
-    return navigate(`/hero/${id}`)
-  }
-  const deleteHero = async () => {
-    const res = await HeroService.deleteHero(id)
-    console.log(`${res.data.nickname} succesfully deleted`);
-  return navigate('/heroes')
-  }
-  const imageInputRef = useRef(null)
-
-  const uploadImage = async (heroId) => {
-    const image = imageInputRef.current.files[0]
-    if(image) {
-      const formData =new FormData()
-      formData.append('image', image)
-      const res = await HeroService.uploadImage(heroId, formData)
+  const addHero = async (e) => {
+    try {
+      setIsLoading(true)
+      console.log(isLoading,'iL');
+      const image = imageInputRef.current.files[0]
+      toggleEdit(false)
+      await addHeroAsync(hero, image)
+      setIsLoading(false)
+      // return navigate(`/hero/${id}`)
+      return navigate('/heroes')
+    }catch(e){
+      setIsLoading(false)
     }
   }
+  const editHero = async (e) => {
+    try {
+      setIsLoading(true)
+      setIsLoading(true)
+      const image = imageInputRef.current.files[0]
+      await editHeroAsync(id, hero, image)
+      setIsLoading(false)
+      return navigate('/heroes')
+    }catch(e){
+      setIsLoading(false)
+    }
+  }
+  const deleteHero = async (e) => {
+    setIsLoading(true)
+    await deleteHeroAsync(id)
+    setIsLoading(false)
+    return navigate('/heroes')
+  }
+
+  
   return (
     <div className={s.container}>
-    
+    {isLoading 
+    ? <Preloader />
+    : <>
     <div className={s.heroContainer}>
       <HeroInfo edit={edit} hero={hero} setHero={setHero}/>
-      {id && images && <Gallery images={images}/>}
-      {edit && 
-      <div className={s.imageInputContainer}>
-          <label 
-            className={s.inputLabel} htmlFor='image_upload'>{images.name || 'Add image'}</label>
+      {props.new
+        ? <div className={s.imageInputContainer}>
+          <label className={s.inputLabel} htmlFor='image_upload'>{'Add image'}</label>
           <input 
             className={s.imageInput} 
             id='image_upload' 
@@ -79,30 +97,31 @@ const Hero = (props) => {
             type='file' 
             name='image'
             accept='.jpg, .jpeg, .png'
-            multiple={true}
             onChange={(e)=> {
-              setImages(...e.target.files)
+              setAvatar(...e.target.files)
             }}
           ></input>
-        </div>}
-    </div>
+        </div>
+        : <Gallery images={images} id={id} edit={edit}/>}
+      
+      </div>  
+      
         <div className={s.buttonContainer}>
           {id
           ? edit 
-            ? <Button onClick={(e) => editHero(hero.nickname, hero.real_name, hero.origin_description, hero.superpowers, hero.catch_phrase, id)
-                } name='Save'/>
+            ? <><Button 
+              onClick={(e) => editHero(e)}
+              name='Save'/>
+            </>
             : <>
               <Button onClick={(e) => toggleEdit()} name='Edit'/>
-              <Button onClick={(e) => deleteHero(id)} name='Delete'/>
+              <Button onClick={(e) => deleteHero(e)} name='Delete'/>
               </>
-          : <Button onClick={(e) => addHero(hero.nickname, hero.real_name, hero.origin_description, hero.superpowers, hero.catch_phrase)} name='Add hero!'/>
-              }
-            {/* <NavLink to={`/editHero/${id}`} className={s.button}>Edit hero</NavLink> */}
-
-           
+          : <Button onClick={(e) => addHero(e)} name='Add hero!'/>
+          }
           
         </div>
-
+        </>}
     </div>
   )
 }
