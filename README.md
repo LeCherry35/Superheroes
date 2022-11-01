@@ -4,7 +4,7 @@ run in root directory:
 ```
 cd .\server\
 npm i
-npm run dev
+npm start
 ```
 
 start client on windows 
