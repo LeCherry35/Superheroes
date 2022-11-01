@@ -45,11 +45,12 @@ const Hero = (props) => {
       setIsLoading(true)
       const image = imageInputRef.current.files[0]
       toggleEdit(false)
-      await addHeroAsync(hero, image)
+      const res = await addHeroAsync(hero, image)
       setPreview(null)
       setIsLoading(false)
-      // return navigate(`/hero/${id}`)
-      // return navigate('/heroes')
+      console.log(res);
+      setEdit(false)
+      return navigate(`/hero/${res.data._id}`)
     }catch(e){
       setIsLoading(false)
     }
@@ -59,9 +60,13 @@ const Hero = (props) => {
       setIsLoading(true)
       await editHeroAsync(id, hero)
       setIsLoading(false)
-      return navigate('/heroes')
+      setEdit(false)
+      return navigate(`/hero/${id}`)
     }catch(e){
       setIsLoading(false)
+      setEdit(false)
+      return navigate(`/hero/${id}`)
+      
     }
   }
   const deleteHero = async (e) => {

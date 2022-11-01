@@ -4,7 +4,8 @@ import { createFormData } from "../helpers/createFormData"
 export const addHeroAsync = async (hero, image) => {
     const formData = createFormData(hero,image)
     const res = await HeroService.addHero(formData)
-    console.log(`${res.data.nickname} succesfully added to database`);
+    console.log(`${res.data.nickname} succesfully added to database`)
+    return res
     
 }
 export const editHeroAsync = async (id, hero, image) => {
