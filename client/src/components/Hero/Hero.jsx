@@ -1,14 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-
-import HeroService from '../../services/HeroService'
 import s from './Hero.module.sass'
 import Button from '../Button/Button'
 import Gallery from '../Gallery/Gallery'
 import HeroInfo from '../HeroInfo/HeroInfo'
-import { addHeroAsync, deleteHeroAsync, editHeroAsync } from '../../async-middleware/hero'
+import { addHeroAsync, deleteHeroAsync, editHeroAsync, getHeroAsync } from '../../async-middleware/hero'
 import Preloader from '../Preloader/Preloader'
-import GalleryService from '../../services/GalleryService'
 
 
 
@@ -16,9 +13,8 @@ const Hero = (props) => {
   const [isLoading, setIsLoading] = useState(false)
   const {id} = useParams()
   const [hero, setHero] = useState({})
-  const [images, setImages] = useState([])
-  const [avatar, setAvatar] = useState(null)
   const [edit, setEdit] = useState(props.edit)
+  const [preview, setPreview] = useState(null)
   
   let navigate = useNavigate();
   
@@ -35,11 +31,8 @@ const Hero = (props) => {
   const getHero = async () => {
     try {
       setIsLoading(true)
-      const res = await HeroService.getHero(id)
+      const res = getHeroAsync()
       setHero(res.data)
-      const imgRes = await GalleryService.getImages(id)
-      const images = [res.data, ...imgRes.data]
-      setImages(images)
       setIsLoading(false)
     }catch(e){
       setIsLoading(false)
@@ -48,14 +41,15 @@ const Hero = (props) => {
   }
   const addHero = async (e) => {
     try {
+      e.preventDefault()
       setIsLoading(true)
-      console.log(isLoading,'iL');
       const image = imageInputRef.current.files[0]
       toggleEdit(false)
       await addHeroAsync(hero, image)
+      setPreview(null)
       setIsLoading(false)
       // return navigate(`/hero/${id}`)
-      return navigate('/heroes')
+      // return navigate('/heroes')
     }catch(e){
       setIsLoading(false)
     }
@@ -63,9 +57,7 @@ const Hero = (props) => {
   const editHero = async (e) => {
     try {
       setIsLoading(true)
-      setIsLoading(true)
-      const image = imageInputRef.current.files[0]
-      await editHeroAsync(id, hero, image)
+      await editHeroAsync(id, hero)
       setIsLoading(false)
       return navigate('/heroes')
     }catch(e){
@@ -79,7 +71,15 @@ const Hero = (props) => {
     return navigate('/heroes')
   }
 
-  
+  const imageHandler = (e) => {
+    const reader = new FileReader ()
+    reader.onload = () => {
+      if(reader.readyState === 2){
+        setPreview(reader.result)
+      }
+    }
+    reader.readAsDataURL(e.target.files[0])
+  }
   return (
     <div className={s.container}>
     {isLoading 
@@ -89,7 +89,11 @@ const Hero = (props) => {
       <HeroInfo edit={edit} hero={hero} setHero={setHero}/>
       {props.new
         ? <div className={s.imageInputContainer}>
-          <label className={s.inputLabel} htmlFor='image_upload'>{'Add image'}</label>
+          <label className={s.inputLabel} htmlFor='image_upload'>
+          {preview 
+          ? <img className={s.preview} src={preview} alt='prev'/>
+          : 'Add image'}
+          </label>
           <input 
             className={s.imageInput} 
             id='image_upload' 
@@ -98,11 +102,11 @@ const Hero = (props) => {
             name='image'
             accept='.jpg, .jpeg, .png'
             onChange={(e)=> {
-              setAvatar(...e.target.files)
+              imageHandler(e)
             }}
           ></input>
         </div>
-        : <Gallery images={images} id={id} edit={edit}/>}
+        : <Gallery id={id} edit={edit}/>}
       
       </div>  
       

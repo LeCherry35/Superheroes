@@ -16,8 +16,10 @@ export default class HeroService {
     static async getHero(id) {
         return axios.get(API_URL + `/getHero/${id}`)
     }
-
     static async deleteHero(id) {
         return axios.delete(API_URL + `/deleteHero?id=${id}`)
+    }
+    static async getHeroesNumber() {
+        return axios.get(API_URL +'/heroesNumber')
     }
 }

@@ -8,4 +8,7 @@ export default class GalleryService {
     static async uploadImage(heroId, formData) {
         return axios.post(API_URL + `/uploadImage?heroId=${heroId}`, formData)
     }
+    static async deleteImage(id) {
+        return axios.delete(API_URL +`/deleteImage?id=${id}`)
+    }
 }

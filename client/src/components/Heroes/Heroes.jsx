@@ -27,10 +27,11 @@ const Heroes = () => {
       setButtonDisabled(true)
       const res = await HeroService.getHeroes(q, page)
       const newHeroes = res.data
+      const n = await HeroService.getHeroesNumber()
       // ask Eugene if I need a callback here
       setHeroes([...heroes, ...newHeroes])
       setIsLoading(false)
-      setButtonDisabled(false)
+      if(q*(page + 1) < n.data)setButtonDisabled(false)
     }catch(e){
       setIsLoading(false)
     }
@@ -40,7 +41,6 @@ const Heroes = () => {
 
   return (
     <div className={s.container}>
-    {isLoading ? <Preloader /> : <></>}
       <div className={s.heroesContainer}> 
         {heroes.map(hero => {
           return (
@@ -53,6 +53,7 @@ const Heroes = () => {
           )
         })}
       </div>
+      {isLoading ? <Preloader /> : <></>}
       {buttonDisabled ? <></> : <Button name='Show more heroes' onClick={(e) => setPage(page + 1)}/>}
     </div>
   )

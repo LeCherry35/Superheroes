@@ -1,12 +1,10 @@
 const HeroService = require('../services/hero-service')
-const ImageModel = require('../models/image-model');
-const ImagesService = require('../services/images-service');
+const ImageService = require('../services/images-service');
 
-class HeroController {
+class Controller {
     async addHero (req, res, next) {
         try {
             const {nickname, real_name, origin_description, superpowers, catch_phrase} = req.body
-            // console.log('aaaddd', req)
             const newHero = { 
                 nickname, 
                 superpowers,
@@ -21,16 +19,18 @@ class HeroController {
                 : {}
             }
             const hero = await HeroService.addHero(newHero)
-            console.log('re', hero);
+            if (req.file) {
+            
             const newImage = { 
-                superhero: heroId,
+                superhero: hero._id,
                 image: {
                     data: new Buffer.from(req.file.buffer, 'base64'), 
                     contentType: req.file.mimetype 
                 }
             }
-            const savedImage = await ImageModel.create(newImage)
-            console.log(`${nickname} added to database`);
+            await ImageService.uploadImage(newImage)
+        }
+            (`${nickname} added to database`);
             return res.json(hero)
         } catch (e) {
             next(e)
@@ -44,14 +44,17 @@ class HeroController {
                 superpowers,
                 real_name, 
                 origin_description,
-                catch_phrase,
-                image: req.file && {
-                    data: new Buffer.from(req.file.buffer, 'base64'), 
-                    contentType: req.file.mimetype 
-                }
+                catch_phrase
             }
             const { id } = req.query
             const hero = await HeroService.editHero(id, editedHero)
+            if (req.file) {
+                const image = {
+                        data: new Buffer.from(req.file.buffer, 'base64'), 
+                        contentType: req.file.mimetype 
+                    }
+                    await HeroService.setImage(id, image)
+                }
             return res.json(hero)
         } catch (e) {
             next(e)
@@ -61,6 +64,7 @@ class HeroController {
         try {
             const { id } = req.query
             const hero = await HeroService.deleteHero(id)
+            const i = await ImageService.deleteImages(id)
             return res.json(hero)
         } catch (e) {
             next(e)
@@ -70,7 +74,16 @@ class HeroController {
         try {
             const {q, page} = req.query
             const heroes = await HeroService.getHeroes(q, page)
+            
             return res.json(heroes)
+        } catch (e) {
+            next(e)
+        }
+    }
+    async getHeroesNumber (req, res, next) {
+        try {
+            const n = await HeroService.getHeroesNumber()
+            return res.json(n)
         } catch (e) {
             next(e)
         }
@@ -94,21 +107,29 @@ class HeroController {
                         contentType: req.file.mimetype 
                     }
                 }
-            const image = await ImagesService.uploadImage(newImage)
+            const image = await ImageService.uploadImage(newImage)
             return res.json(image)
         } catch (e) {
             next(e)
         }
     }
-    async getImages (req,res,next) {
+    async getImages (req, res, next) {
         try {
             const { heroId } = req.query
-            const images = await ImagesService.getImages(heroId)
-            // console.log('f', res.json(image));
+            const images = await ImageService.getImages(heroId)
             return res.json(images)
         } catch(e) {
             next(e)
         }
     }
+    async deleteImage (req, res, next) {
+        try {
+            const { id } = req.query
+            const image = await ImageService.deleteImage(id)
+            return res.json(image)
+        } catch (e) {
+            next(e)
+        }
+    }
 }
-module.exports= new HeroController ()
+module.exports= new Controller ()
