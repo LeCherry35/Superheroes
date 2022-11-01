@@ -1,4 +1,5 @@
 start server on windows
+
 run in root directory: 
 
 ```
@@ -8,6 +9,7 @@ npm start
 ```
 
 start client on windows 
+
 run in root directory: 
 
 ```
