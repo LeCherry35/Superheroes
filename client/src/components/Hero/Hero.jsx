@@ -31,7 +31,7 @@ const Hero = (props) => {
   const getHero = async () => {
     try {
       setIsLoading(true)
-      const res = getHeroAsync()
+      const res = await getHeroAsync(id)
       setHero(res.data)
       setIsLoading(false)
     }catch(e){
@@ -86,7 +86,7 @@ const Hero = (props) => {
     ? <Preloader />
     : <>
     <div className={s.heroContainer}>
-      <HeroInfo edit={edit} hero={hero} setHero={setHero}/>
+      {hero && <HeroInfo edit={edit} hero={hero} setHero={setHero}/>}
       {props.new
         ? <div className={s.imageInputContainer}>
           <label className={s.inputLabel} htmlFor='image_upload'>

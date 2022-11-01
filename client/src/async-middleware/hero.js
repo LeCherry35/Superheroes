@@ -17,5 +17,6 @@ export const deleteHeroAsync = async (id) => {
     console.log(`${res.data.nickname} succesfully deleted`);
 }
 export const getHeroAsync = async (id) => {
-    return await HeroService.getHero(id)
+    const res = await HeroService.getHero(id)
+    return res
 }

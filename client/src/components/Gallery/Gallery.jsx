@@ -6,7 +6,6 @@ import Preloader from '../Preloader/Preloader'
 import { deleteImageAsync, getImagesAsync, uploadImageAsync } from '../../async-middleware/gallery'
 
 const Gallery = (props) => {
-
   const [isLoading, setIsLoading] = useState(false)
   const [images, setImages] = useState([])
   const imageInputRef = useRef(null)
@@ -18,8 +17,8 @@ const Gallery = (props) => {
 
   const getImages = async () => {
     setIsLoading(true)
-    const images = getImagesAsync(props.id).data
-    setImages(images)
+    const images = await getImagesAsync(props.id)
+    setImages(images.data)
     setIsLoading(false)
   }
 
@@ -59,7 +58,7 @@ const Gallery = (props) => {
 {isLoading 
 ? <Preloader/>
 : <div className={s.container} >
-        {images.map(image => {
+        {images && images.map(image => {
         return (
           <div key={image._id} className={s.imageContainer}>
             <div  className={s.image} style={{background: `url('data:${image.image.contentType};base64,${toBase64 (image.image.data.data)}') 0 0/contain no-repeat`}}>

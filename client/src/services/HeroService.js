@@ -14,6 +14,8 @@ export default class HeroService {
         return axios.put(API_URL + `/editHero?id=${id}`,formData)
     }
     static async getHero(id) {
+        
+        console.log('a', await axios.get(API_URL + `/getHero/${id}`));
         return axios.get(API_URL + `/getHero/${id}`)
     }
     static async deleteHero(id) {

@@ -17,10 +17,6 @@ const Heroes = () => {
     getHeroes(q, page)
   },[page])
 
-  // useEffect(() => {
-  //   console.log(heroes)
-  // },[heroes])
-
   const getHeroes = async (q, page) => {
     try {
       setIsLoading(true)
