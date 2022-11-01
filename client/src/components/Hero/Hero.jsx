@@ -48,11 +48,11 @@ const Hero = (props) => {
       const res = await addHeroAsync(hero, image)
       setPreview(null)
       setIsLoading(false)
-      console.log(res);
       setEdit(false)
       return navigate(`/hero/${res.data._id}`)
     }catch(e){
       setIsLoading(false)
+      return navigate('/heroes')
     }
   }
   const editHero = async (e) => {

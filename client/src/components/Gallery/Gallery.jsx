@@ -4,6 +4,7 @@ import { toBase64 } from '../../helpers/toBase64'
 import Button from '../Button/Button'
 import Preloader from '../Preloader/Preloader'
 import { deleteImageAsync, getImagesAsync, uploadImageAsync } from '../../async-middleware/gallery'
+import { setImageAsync } from '../../async-middleware/hero'
 
 const Gallery = (props) => {
   const [isLoading, setIsLoading] = useState(false)
@@ -38,12 +39,13 @@ const Gallery = (props) => {
     const res = await deleteImageAsync(imageId)
     getImages()
   }
-  // const setImage = async (e,image) => {
-  //   const formData =new FormData()
-  //   if(image) formData.append('image', image)
-  //   const res = await HeroService.editHero(props.id, formData)
-  //   console.log('r', res)
-  // }
+  const setImage = async (e,image) => {
+    const formData =new FormData()
+    if(image) {
+      formData.append('image', image)
+    }
+    await setImageAsync(props.id, formData)
+  }
   const imageHandler = (e) => {
     const reader = new FileReader ()
     reader.onload = () => {

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import HeroService from '../../services/HeroService'
 import Button from '../Button/Button'
 import HeroShortcut from '../HeroShortcut/HeroShortcut'
 import s from './Heroes.module.sass'
 import Preloader from '../Preloader/Preloader'
+import { getHeroesAsync } from '../../async-middleware/heroes'
 
 const Heroes = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -15,19 +15,17 @@ const Heroes = () => {
 
   useEffect(() => {
     getHeroes(q, page)
+    
   },[page])
 
   const getHeroes = async (q, page) => {
     try {
       setIsLoading(true)
       setButtonDisabled(true)
-      const res = await HeroService.getHeroes(q, page)
-      const newHeroes = res.data
-      const n = await HeroService.getHeroesNumber()
-      // ask Eugene if I need a callback here
+      const {newHeroes, all} = await getHeroesAsync(q, page)
       setHeroes([...heroes, ...newHeroes])
       setIsLoading(false)
-      if(q*(page + 1) < n.data)setButtonDisabled(false)
+      !all && setButtonDisabled(false)
     }catch(e){
       setIsLoading(false)
     }
@@ -38,9 +36,13 @@ const Heroes = () => {
   return (
     <div className={s.container}>
       <div className={s.heroesContainer}> 
-        {heroes.map(hero => {
+        {
+          
+          heroes && heroes.map((hero,id,arr) => {
           return (
             <HeroShortcut 
+              // prev={id>arr[id-1]._id}
+              // next={arr[id+1]._id}
               key={hero._id}
               id={hero._id}
               nickname={hero.nickname} 

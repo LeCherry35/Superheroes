@@ -39,23 +39,26 @@ class Controller {
     async editHero (req, res, next) {
         try {
             const {nickname, real_name, origin_description, superpowers, catch_phrase} = req.body
-            const editedHero = { 
-                nickname, 
-                superpowers,
-                real_name, 
-                origin_description,
-                catch_phrase
-            }
             const { id } = req.query
-            const hero = await HeroService.editHero(id, editedHero)
             if (req.file) {
                 const image = {
                         data: new Buffer.from(req.file.buffer, 'base64'), 
                         contentType: req.file.mimetype 
                     }
-                    await HeroService.setImage(id, image)
+                    const hero = await HeroService.setImage(id, image)
+                    return res.json(hero)
+                } else {
+                    const editedHero = { 
+                        nickname, 
+                        superpowers,
+                        real_name, 
+                        origin_description,
+                        catch_phrase,
+                        
+                    }
+                    const hero = await HeroService.editHero(id, editedHero)
+                    return res.json(hero)
                 }
-            return res.json(hero)
         } catch (e) {
             next(e)
         }

@@ -21,3 +21,7 @@ export const getHeroAsync = async (id) => {
     const res = await HeroService.getHero(id)
     return res
 }
+export const setImageAsync = async (heroId, formData) => {
+    const res = await HeroService.editHero(heroId, formData)
+    return res
+}
