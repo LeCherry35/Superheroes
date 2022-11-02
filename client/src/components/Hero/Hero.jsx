@@ -8,7 +8,6 @@ import { addHeroAsync, deleteHeroAsync, editHeroAsync, getHeroAsync } from '../.
 import Preloader from '../Preloader/Preloader'
 
 
-
 const Hero = (props) => {
   const [isLoading, setIsLoading] = useState(false)
   const {id} = useParams()
@@ -17,8 +16,6 @@ const Hero = (props) => {
   const [preview, setPreview] = useState(null)
   
   let navigate = useNavigate();
-  
-  const imageInputRef = useRef(null)
   useEffect(() => {
     id && getHero()
     props.new && setHero({})
@@ -43,7 +40,7 @@ const Hero = (props) => {
     try {
       e.preventDefault()
       setIsLoading(true)
-      const image = imageInputRef.current.files[0]
+      const image = preview
       toggleEdit(false)
       const res = await addHeroAsync(hero, image)
       setPreview(null)
@@ -58,7 +55,7 @@ const Hero = (props) => {
   const editHero = async (e) => {
     try {
       setIsLoading(true)
-      await editHeroAsync(id, hero)
+      await editHeroAsync(id, hero, preview)
       setIsLoading(false)
       setEdit(false)
       return navigate(`/hero/${id}`)
@@ -76,41 +73,16 @@ const Hero = (props) => {
     return navigate('/heroes')
   }
 
-  const imageHandler = (e) => {
-    const reader = new FileReader ()
-    reader.onload = () => {
-      if(reader.readyState === 2){
-        setPreview(reader.result)
-      }
-    }
-    reader.readAsDataURL(e.target.files[0])
-  }
+  
   return (
     <div className={s.container}>
     {isLoading 
     ? <Preloader />
     : <>
     <div className={s.heroContainer}>
-      {hero && <HeroInfo edit={edit} hero={hero} setHero={setHero}/>}
+      <HeroInfo edit={edit} hero={hero} setHero={setHero} preview={preview} setPreview={setPreview}/>
       {props.new
-        ? <div className={s.imageInputContainer}>
-          <label className={s.inputLabel} htmlFor='image_upload'>
-          {preview 
-          ? <img className={s.preview} src={preview} alt='prev'/>
-          : 'Add image'}
-          </label>
-          <input 
-            className={s.imageInput} 
-            id='image_upload' 
-            ref={imageInputRef} 
-            type='file' 
-            name='image'
-            accept='.jpg, .jpeg, .png'
-            onChange={(e)=> {
-              imageHandler(e)
-            }}
-          ></input>
-        </div>
+        ? <></>
         : <Gallery id={id} edit={edit}/>}
       
       </div>  

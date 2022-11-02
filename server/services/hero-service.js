@@ -18,20 +18,7 @@ class HeroService {
         return createdHero 
     }
     async editHero (id, hero) {
-    //     if ( hero.image) {
-    //         const editedHero = await HeroModel.findByIdAndUpdate({_id: id}, {$set: {image:hero.image}})
-    //     return editedHero
-    // }
-        
-        // const existing = await HeroModel.find({nickname: hero.nickname})
-        // console.log(existing[1])
-        // console.log(existing[0]._id)
-
-        // console.log(id);
-        // if(existing[1] && (existing[0]._id !== id || existing[1]._id !== id)){
-        //     throw ApiError.BadRequest(`Hero with nickname ${hero.nickname} already exists`)
-        // }
-        const editedHero = await HeroModel.findByIdAndUpdate({_id: id}, {$set: {nickname: hero.nickname, real_name: hero.real_name, origin_description: hero.origin_description,  superpowers: hero.superpowers,catch_phrase: hero.catch_phrase}})
+        const editedHero = await HeroModel.findByIdAndUpdate({_id: id}, {$set: {nickname: hero.nickname, real_name: hero.real_name, origin_description: hero.origin_description,  superpowers: hero.superpowers,catch_phrase: hero.catch_phrase, image: hero.image}})
         return editedHero
     }
     async deleteHero (id) {
@@ -45,12 +32,6 @@ class HeroService {
     async getHero (id) {
         const hero = await HeroModel.findById(id)
         return hero
-    }
-    
-    async setImage (id, image) {
-        const newImage = await HeroModel.findByIdAndUpdate({_id: id},{$set: {image: image}})
-        console.log('2',newImage);
-        return newImage
     }
     async getHeroesNumber () {
         const n = await HeroModel.find().count()

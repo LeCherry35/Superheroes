@@ -20,7 +20,6 @@ class Controller {
             }
             const hero = await HeroService.addHero(newHero)
             if (req.file) {
-            
             const newImage = { 
                 superhero: hero._id,
                 image: {
@@ -29,8 +28,8 @@ class Controller {
                 }
             }
             await ImageService.uploadImage(newImage)
-        }
-            (`${nickname} added to database`);
+            }
+            console.log(`${nickname} added to database`);
             return res.json(hero)
         } catch (e) {
             next(e)
@@ -40,29 +39,26 @@ class Controller {
         try {
             const {nickname, real_name, origin_description, superpowers, catch_phrase} = req.body
             const { id } = req.query
-            if (req.file) {
-                const image = {
-                        data: new Buffer.from(req.file.buffer, 'base64'), 
-                        contentType: req.file.mimetype 
-                    }
-                    const hero = await HeroService.setImage(id, image)
-                    return res.json(hero)
-                } else {
-                    const editedHero = { 
-                        nickname, 
-                        superpowers,
-                        real_name, 
-                        origin_description,
-                        catch_phrase,
-                        
-                    }
-                    const hero = await HeroService.editHero(id, editedHero)
-                    return res.json(hero)
+            const editedHero = { 
+                nickname, 
+                superpowers,
+                real_name, 
+                origin_description,
+                catch_phrase,
+                image: req.file 
+                ? {
+                    data: new Buffer.from(req.file.buffer, 'base64'), 
+                    contentType: req.file.mimetype 
                 }
+                : {}
+            }
+            const hero = await HeroService.editHero(id, editedHero)
+            return res.json(hero)
         } catch (e) {
             next(e)
         }
     }
+    
     async deleteHero (req, res, next) {
         try {
             const { id } = req.query

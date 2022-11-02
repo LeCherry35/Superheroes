@@ -4,13 +4,13 @@ import { toBase64 } from '../../helpers/toBase64'
 import Button from '../Button/Button'
 import Preloader from '../Preloader/Preloader'
 import { deleteImageAsync, getImagesAsync, uploadImageAsync } from '../../async-middleware/gallery'
-import { setImageAsync } from '../../async-middleware/hero'
 
 const Gallery = (props) => {
   const [isLoading, setIsLoading] = useState(false)
   const [images, setImages] = useState([])
-  const imageInputRef = useRef(null)
-  const [preview, setPreview] = useState(null)
+  const imageInputRefGallery = useRef(null)
+  // const [avatar, setAvatar] = useState(null)
+  const [previewGallery, setPreviewGallery] = useState(null)
 
   useEffect(() => {
     getImages()
@@ -25,12 +25,12 @@ const Gallery = (props) => {
 
   const uploadImage = async (e) => {
     setIsLoading(true)
-    const image = imageInputRef.current.files[0]
+    const image = imageInputRefGallery.current.files[0]
     if(image) {
       const formData =new FormData()
       formData.append('image', image)
       const res = uploadImageAsync(props.id, formData)
-      setPreview(null)
+      setPreviewGallery(null)
     }
     getImages()
   }
@@ -39,18 +39,11 @@ const Gallery = (props) => {
     const res = await deleteImageAsync(imageId)
     getImages()
   }
-  const setImage = async (e,image) => {
-    const formData =new FormData()
-    if(image) {
-      formData.append('image', image)
-    }
-    await setImageAsync(props.id, formData)
-  }
   const imageHandler = (e) => {
     const reader = new FileReader ()
     reader.onload = () => {
       if(reader.readyState === 2){
-        setPreview(reader.result)
+        setPreviewGallery(reader.result)
       }
     }
     reader.readAsDataURL(e.target.files[0])
@@ -67,7 +60,6 @@ const Gallery = (props) => {
             </div>
               {props.edit && <>
                 <button className={s.miniButton} onClick={(e) => deleteImage(e, image._id)}>delete</button>
-                {/* <button className={s.miniButton} onClick={(e) => setImage(e, image.image)}>set</button> */}
               </>}
               </div>
         )
@@ -75,14 +67,14 @@ const Gallery = (props) => {
       {props.edit && <div className={s.imageInputContainer}>
           <label 
             className={s.inputLabel} htmlFor='image_upload'>
-            {preview 
-          ? <img className={s.preview} src={preview} alt='prev'/>
-          : 'select'}
+            {previewGallery 
+          ? <img className={s.preview} src={previewGallery} alt='prev'/>
+          : 'select image'}
           </label>
           <input 
             className={s.imageInput} 
             id='image_upload' 
-            ref={imageInputRef} 
+            ref={imageInputRefGallery} 
             type='file' 
             name='image'
             accept='.jpg, .jpeg, .png'
